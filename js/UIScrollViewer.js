@@ -77,7 +77,6 @@
        this.index = this.options.index;
        this.lastIndex = this.index;
        this.enabled = true;
-       this.isSliding = false;
        this.el = doc.createElement('div');
        this.el.className = 'scrollviewer';
        this.dom = {};
