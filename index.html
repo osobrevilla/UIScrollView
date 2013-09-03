@@ -1,0 +1,167 @@
+<html>
+<head>
+
+  <title>ScrollView</title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  
+  <link rel="stylesheet" media="screen" href="css/UIView.css" type="text/css" />
+
+  <script type="text/javascript" src="js/data.js"></script>
+  <script type="text/javascript" src="js/jquery.js"></script>
+  <script type="text/javascript" src="js/ImageDownloader.js"></script>
+  <script type="text/javascript" src="js/UIView.js"></script>
+  <script type="text/javascript" src="js/UIScrollViewer.js"></script>
+  <script type="text/javascript" src="js/iscroll.js"></script>
+
+
+  <script type="text/javascript">
+
+    var app = (function () {
+      var views = [],
+        win,
+        body,
+        wrapper,
+        target,
+        maxHeight,
+        maxWidth,
+        width,
+        height,
+        ratio,
+        scroller,
+        uiScrollView,
+        lastViewIndex,
+        _init = function (data) {
+          var d;
+          views = [];
+          win = $(window);
+          body = $(document.body);
+          wrapper = $('#wrapper');
+          target = $('#target');
+          maxHeight = body.height();
+          maxWidth = body.width();
+          width = data.boundary.width;
+          height = data.boundary.height;
+          ratio = height / width;
+          for (d in data.pages) {
+            views.push(new UIView({
+              src: data.pages[d].src,
+              thumb: data.pages[d].thumb
+            }));
+          }
+          _setuiScrollView();
+          _setScroll();
+          win.on('resize orientationchange', function () {
+            var maxWidth = body.width();
+            uiScrollView.setOptions({
+              height: maxWidth * ratio,
+              width: maxWidth
+            })
+            uiScrollView.refresh();
+          });
+          return {
+            uiScrollView: uiScrollView,
+            scroller: scroller
+          }
+        },
+        _setuiScrollView = function () {
+          uiScrollView = new UIScrollViewer(target.get(0), views, {
+            height: maxWidth * ratio,
+            width: maxWidth,
+            index: 0,
+            onChangeView: function (e) {
+              onShowPage();
+            }
+          });
+          uiScrollView.show();
+          onShowPage();
+        },
+        _getAsideIndexes = function (index, len) {
+          var nextIndex = index + 1,
+            prevIndex = index - 1;
+          if (nextIndex > len - 1) {
+            nextIndex = 0;
+          }
+          if (prevIndex < 0) {
+            prevIndex = len - 1;
+          }
+          return [prevIndex, nextIndex];
+        },
+        onShowPage = function () {
+          if (lastViewIndex != null) {
+            var oldIndexes = _getAsideIndexes(lastViewIndex, uiScrollView.views.length);
+            uiScrollView.getView(lastViewIndex).abortDownload();
+            if (Math.abs(uiScrollView.index - lastViewIndex) == 1) {
+              if (uiScrollView.index > lastViewIndex) {
+                uiScrollView.getView(oldIndexes[0]).abortDownload();
+              } else {
+                uiScrollView.getView(oldIndexes[1]).abortDownload();
+              }
+            } else {
+              uiScrollView.getView(oldIndexes[0]).abortDownload();
+              uiScrollView.getView(oldIndexes[1]).abortDownload();
+            }
+          }
+          uiScrollView.getView().show(function () {
+            this.setImage(true);
+            var asideIndexes = _getAsideIndexes(uiScrollView.index, uiScrollView.views.length),
+              prevView = uiScrollView.getView(asideIndexes[0]), // prev
+              nextView = uiScrollView.getView(asideIndexes[1]); // next
+            nextView.preload(function () {
+              this.setImage(true);
+            });
+            prevView.preload(function () {
+              this.setImage(true);
+            });
+          });
+          lastViewIndex = uiScrollView.index;
+        },
+        _setScroll = function (el) {
+          // scroller = new iScroll(wrapper.get(0), {
+          //   zoom: true,
+          //   zoomMin: 1,
+          //   zoomMax: 5,
+          //   bounce: false,
+          //   bounceLock: true,
+          //   doubleTapZoom: 3,
+          //   hScrollbar: false,
+          //   vScrollbar: false,
+          //   wheelAction: 'zoom',
+          //   onZoomEnd: function () {
+          //     if (this.scale > 1) {
+          //       uiScrollView.disable();
+          //     } else {
+          //       uiScrollView.enable();
+          //     }
+          //   }
+          // });
+        },
+        _changeView = function () {
+          _showView.call(this);
+        },
+        _beforeSlide = function () {
+          //scroller.destroy();
+          this.getView().unload();
+        },
+        _load = function () {
+          this.getView().setImage(true);
+        };
+      return {
+        init: _init
+      };
+    }());
+     // Document Ready
+    $(function () {
+      api = app.init(data);
+    });
+
+  </script>
+
+</head>
+<body>
+  <div id="wrapper">
+    <div id="target">
+
+    </div>
+  </div>
+</body>
+</html>
