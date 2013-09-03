@@ -67,15 +67,8 @@
        this.options = {
          height: 800,
          width: 600,
-         axis: 'x',
          margin: 0,
-         loop: true,
-         slideSpeed: 250,
-         swipe: true,
          index: 0,
-         gesture: true,
-         preventDefaultTouchEvents: true,
-         onBeforeSlide: null,
          onChangeView: null
        };
        // Copy settings
@@ -134,6 +127,7 @@
        this.scrollTo(this.index + 1);
      },
      show: function (view) {
+      var v;
        for (v in this.views)
          this.el.appendChild(this.views[v].render());
      },
