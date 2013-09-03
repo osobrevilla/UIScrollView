@@ -1,9 +1,9 @@
  /*
-  *  UIScrollViewer.js
+  *  UIScrollView.js
   *  Author: Oscar Sobrevilla (oscar.sobrevilla@gmail.com)
   *  Version: 0.1 (beta)
   */
- UIScrollViewer = (function (win, doc) {
+ UIScrollView = (function (win, doc) {
    var m = Math,
      dummyStyle = doc.createElement('div').style,
      vendor = (function () {
@@ -61,7 +61,7 @@
      cancelFrame = (function () {
        return window.cancelRequestAnimationFrame || window.webkitCancelAnimationFrame || window.webkitCancelRequestAnimationFrame || window.oCancelRequestAnimationFrame || window.msCancelRequestAnimationFrame || clearTimeout;
      })(),
-     UIScrollViewer = function (target, views, options) {
+     UIScrollView = function (target, views, options) {
        var that = this,
          i;
        this.options = {
@@ -97,8 +97,8 @@
        this._bind('scroll', this.dom.target);
        this.dom.target.appendChild(this.el);
      };
-   UIScrollViewer.prototype = {
-     constructor: UIScrollViewer,
+   UIScrollView.prototype = {
+     constructor: UIScrollView,
      setOptions: function (options) {
        var i;
        for (i in options) this.options[i] = options[i];
@@ -199,5 +199,5 @@
      style = style.charAt(0).toUpperCase() + style.substr(1);
      return vendor + style;
    }
-   return UIScrollViewer;
+   return UIScrollView;
  }(window, window.document))
