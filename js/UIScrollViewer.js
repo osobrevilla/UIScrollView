@@ -61,6 +61,23 @@
      cancelFrame = (function () {
        return window.cancelRequestAnimationFrame || window.webkitCancelAnimationFrame || window.webkitCancelRequestAnimationFrame || window.oCancelRequestAnimationFrame || window.msCancelRequestAnimationFrame || clearTimeout;
      })(),
+
+     touchScroll = function (id) {
+        if (hasTouch) { //if touch events exist...
+          var el = id || document.getElementById(id);
+          var scrollStartPos = 0;
+
+          el.addEventListener("touchstart", function (event) {
+            scrollStartPos = this.scrollTop + event.touches[0].pageY;
+            //event.preventDefault(); <-- This line can be removed
+          }, false);
+
+          el.addEventListener("touchmove", function (event) {
+            this.scrollTop = scrollStartPos - event.touches[0].pageY;
+            event.preventDefault();
+          }, false);
+        }
+      },
      UIScrollView = function (target, views, options) {
        var that = this,
          i;
@@ -81,23 +98,18 @@
        this.el.className = 'scrollviewer';
        this.dom = {};
        this.dom.target = target;
-       this.dom.target.style.height = this.options.height + 'px';
-       this.dom.target.style.width = this.options.width + 'px';
+       this.dom.target.style.height = '100%';
+       this.dom.target.style.width = '100%';
        this.dom.target.style.overflowY = 'scroll';
-       this._bind(RESIZE_EV, window);
-       this._bind(START_EV);
        this._bind('scroll', this.dom.target);
        this.dom.target.appendChild(this.el);
+       touchScroll(this.el.parentNode);
      };
    UIScrollView.prototype = {
      constructor: UIScrollView,
      setOptions: function (options) {
        var i;
        for (i in options) this.options[i] = options[i];
-     },
-     refresh: function () {
-       this.dom.target.style.height = this.options.height + 'px';
-       this.dom.target.style.width = this.options.width + 'px';
      },
      _bind: function (type, el, bubble) {
        (el || this.el).addEventListener(type, this, !! bubble);
@@ -157,11 +169,11 @@
        return this.getView(prevIndex);
      },
      getIndex: function () {
-       return Math.floor(this.dom.target.scrollTop / this.options.height);
+       return Math.floor(this.dom.target.scrollTop / this.options.height)
      },
      scrolling: function () {
        var index = this.getIndex();
-       if (Math.abs(this.index - index) == 1) {
+       if (this.index !== index) {
          this.index = index;
          this.options.onChangeView && this.options.onChangeView.call(this, index);
        }
@@ -176,15 +188,8 @@
        case 'scroll':
          this.scrolling(e);
          break;
-       case RESIZE_EV:
-         this._resize();
-         break;
-       case TRNEND_EV:
-         this._transitionEnd(e);
-         break;
        }
-     },
-     _resize: function () {}
+     }
    };
 
    function prefixStyle(style) {

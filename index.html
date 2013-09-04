@@ -10,8 +10,9 @@
   <script type="text/javascript" src="js/jquery.js"></script>
   <script type="text/javascript" src="js/ImageDownloader.js"></script>
   <script type="text/javascript" src="js/UIView.js"></script>
-  <script type="text/javascript" src="js/UIScrollViewer.js"></script>
   <script type="text/javascript" src="js/iscroll.js"></script>
+  <script type="text/javascript" src="js/UIScrollViewer.js"></script>
+  
 
 
   <script type="text/javascript">
@@ -49,14 +50,12 @@
             }));
           }
           _setuiScrollView();
-          _setScroll();
           win.on('resize orientationchange', function () {
             var maxWidth = body.width();
             uiScrollView.setOptions({
               height: maxWidth * ratio,
               width: maxWidth
-            })
-            uiScrollView.refresh();
+            });
           });
           return {
             uiScrollView: uiScrollView,
@@ -65,9 +64,9 @@
         },
         _setuiScrollView = function () {
           uiScrollView = new UIScrollView(target.get(0), views, {
+            index: 0,
             height: maxWidth * ratio,
             width: maxWidth,
-            index: 0,
             onChangeView: function (e) {
               onShowPage();
             }
@@ -93,8 +92,10 @@
             if (Math.abs(uiScrollView.index - lastViewIndex) == 1) {
               if (uiScrollView.index > lastViewIndex) {
                 uiScrollView.getView(oldIndexes[0]).abortDownload();
+                uiScrollView.getView(oldIndexes[0]).unload();
               } else {
                 uiScrollView.getView(oldIndexes[1]).abortDownload();
+                uiScrollView.getView(oldIndexes[1]).unload();
               }
             } else {
               uiScrollView.getView(oldIndexes[0]).abortDownload();
@@ -106,34 +107,14 @@
             var asideIndexes = _getAsideIndexes(uiScrollView.index, uiScrollView.views.length),
               prevView = uiScrollView.getView(asideIndexes[0]), // prev
               nextView = uiScrollView.getView(asideIndexes[1]); // next
-            nextView.preload(function () {
+            nextView.preload(function(){
               this.setImage(true);
             });
-            prevView.preload(function () {
+            prevView.preload(function(){
               this.setImage(true);
             });
           });
           lastViewIndex = uiScrollView.index;
-        },
-        _setScroll = function (el) {
-          // scroller = new iScroll(wrapper.get(0), {
-          //   zoom: true,
-          //   zoomMin: 1,
-          //   zoomMax: 5,
-          //   bounce: false,
-          //   bounceLock: true,
-          //   doubleTapZoom: 3,
-          //   hScrollbar: false,
-          //   vScrollbar: false,
-          //   wheelAction: 'zoom',
-          //   onZoomEnd: function () {
-          //     if (this.scale > 1) {
-          //       uiScrollView.disable();
-          //     } else {
-          //       uiScrollView.enable();
-          //     }
-          //   }
-          // });
         },
         _changeView = function () {
           _showView.call(this);
@@ -158,10 +139,9 @@
 
 </head>
 <body>
-  <div id="wrapper">
-    <div id="target">
 
+    <div id="target">
     </div>
-  </div>
+
 </body>
 </html>
