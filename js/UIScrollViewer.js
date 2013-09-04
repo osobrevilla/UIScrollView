@@ -4,80 +4,21 @@
   *  Version: 0.1 (beta)
   */
  UIScrollView = (function (win, doc) {
-   var m = Math,
-     dummyStyle = doc.createElement('div').style,
-     vendor = (function () {
-       var vendors = 't,webkitT,MozT,msT,OT'.split(','),
-         t,
-         i = 0,
-         l = vendors.length;
-       for (; i < l; i++) {
-         t = vendors[i] + 'ransform';
-         if (t in dummyStyle) {
-           return vendors[i].substr(0, vendors[i].length - 1);
-         }
-       }
-       return false;
-     })(),
-     cssVendor = vendor ? '-' + vendor.toLowerCase() + '-' : '',
-     // Style properties
-     transform = prefixStyle('transform'),
-     transitionProperty = prefixStyle('transitionProperty'),
-     transitionDuration = prefixStyle('transitionDuration'),
-     transformOrigin = prefixStyle('transformOrigin'),
-     transitionTimingFunction = prefixStyle('transitionTimingFunction'),
-     transitionDelay = prefixStyle('transitionDelay'),
-     backfaceVisibility = prefixStyle('backfaceVisibility'),
-     perspective = prefixStyle("perspective"),
-     // Browser capabilities
-     isAndroid = (/android/gi).test(navigator.appVersion),
-     isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
-     isTouchPad = (/hp-tablet/gi).test(navigator.appVersion),
-     has3d = prefixStyle('perspective') in dummyStyle,
-     hasTouch = 'ontouchstart' in window && !isTouchPad,
-     hasTransform = vendor !== false,
-     hasTransitionEnd = prefixStyle('transition') in dummyStyle,
-     RESIZE_EV = 'onorientationchange' in window ? 'orientationchange' : 'resize',
-     START_EV = hasTouch ? 'touchstart' : 'mousedown',
-     MOVE_EV = hasTouch ? 'touchmove' : 'mousemove',
-     END_EV = hasTouch ? 'touchend' : 'mouseup',
-     CANCEL_EV = hasTouch ? 'touchcancel' : 'mouseup',
-     TRNEND_EV = (function () {
-       if (vendor === false) return false;
-       var transitionEnd = {
-         '': 'transitionend',
-         'webkit': 'webkitTransitionEnd',
-         'Moz': 'transitionend',
-         'O': 'otransitionend',
-         'ms': 'MSTransitionEnd'
-       };
-       return transitionEnd[vendor];
-     })(),
-     nextFrame = (function () {
-       return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-         return setTimeout(callback, 1000 / 60);
-       };
-     })(),
-     cancelFrame = (function () {
-       return window.cancelRequestAnimationFrame || window.webkitCancelAnimationFrame || window.webkitCancelRequestAnimationFrame || window.oCancelRequestAnimationFrame || window.msCancelRequestAnimationFrame || clearTimeout;
-     })(),
-
+   var hasTouch = 'ontouchstart' in window,
      touchScroll = function (id) {
-        if (hasTouch) { //if touch events exist...
-          var el = id || document.getElementById(id);
-          var scrollStartPos = 0;
-
-          el.addEventListener("touchstart", function (event) {
-            scrollStartPos = this.scrollTop + event.touches[0].pageY;
-            //event.preventDefault(); <-- This line can be removed
-          }, false);
-
-          el.addEventListener("touchmove", function (event) {
-            this.scrollTop = scrollStartPos - event.touches[0].pageY;
-            event.preventDefault();
-          }, false);
-        }
-      },
+       if (hasTouch) { //if touch events exist...
+         var el = id || document.getElementById(id);
+         var scrollStartPos = 0;
+         el.addEventListener("touchstart", function (event) {
+           scrollStartPos = this.scrollTop + event.touches[0].pageY;
+           //event.preventDefault(); <-- This line can be removed
+         }, false);
+         el.addEventListener("touchmove", function (event) {
+           this.scrollTop = scrollStartPos - event.touches[0].pageY;
+           event.preventDefault();
+         }, false);
+       }
+     },
      UIScrollView = function (target, views, options) {
        var that = this,
          i;
@@ -129,7 +70,7 @@
        if (!isNaN(index))
          this.scrollTo(Number(index));
        else
-         throw 'ScrollViewer: Error, @index param no valid';
+         throw 'UIScrollView: Error, @index param no valid';
      },
      prev: function () {
        this.scrollTo(this.index - 1);
@@ -138,7 +79,7 @@
        this.scrollTo(this.index + 1);
      },
      show: function (view) {
-      var v;
+       var v;
        for (v in this.views)
          this.el.appendChild(this.views[v].render());
      },
@@ -191,11 +132,5 @@
        }
      }
    };
-
-   function prefixStyle(style) {
-     if (vendor === '') return style;
-     style = style.charAt(0).toUpperCase() + style.substr(1);
-     return vendor + style;
-   }
    return UIScrollView;
  }(window, window.document))
