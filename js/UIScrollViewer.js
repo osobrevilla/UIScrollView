@@ -58,14 +58,6 @@
      _unbind: function (type, el, bubble) {
        (el || this.el).removeEventListener(type, this, !! bubble);
      },
-     enable: function () {
-       this.enabled = true;
-       this._bind(START_EV);
-     },
-     disable: function () {
-       this.enabled = false;
-       this._unbind(START_EV);
-     },
      goTo: function (index) {
        if (!isNaN(index))
          this.scrollTo(Number(index));
